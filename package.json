@@ -11,8 +11,8 @@
         "resources": {
             "media": [
                 {
-                    "file": "fonts/50GMiniFont.ttf",
-                    "name": "FONT_50GMINIFONT_08",
+                    "file": "fonts/MiniFont.ttf",
+                    "name": "FONT_MINIFONT_16",
                     "targetPlatforms": null,
                     "type": "font"
                 }
