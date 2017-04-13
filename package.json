@@ -11,6 +11,13 @@
         "resources": {
             "media": [
                 {
+                    "file": "images/bar.png",
+                    "memoryFormat": "Smallest",
+                    "name": "IMAGE_TOPBAR",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
                     "file": "fonts/MiniFont.ttf",
                     "name": "FONT_MINIFONT_16",
                     "targetPlatforms": null,

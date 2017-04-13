@@ -12,10 +12,26 @@ static TextLayer *s_backg_layer;
 // global custom fonts
 static GFont s_time_font;
 
+// global bitmap image
+static BitmapLayer *s_topbar_layer;
+static GBitmap *s_topbar_bitmap;
+
 static void main_window_load(Window *w) {
     // get information about the window
     Layer *window_layer = window_get_root_layer(w);
     GRect bounds = layer_get_bounds(window_layer);
+    
+    // create bitmaps
+    s_topbar_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_TOPBAR);
+    
+    // create bitmap layer to display the bitmap
+    s_topbar_layer = bitmap_layer_create(GRect(0, 38, bounds.size.w, 1));
+    
+    // set bitmap onto the layer
+    bitmap_layer_set_bitmap(s_topbar_layer, s_topbar_bitmap);
+    
+    // add bitmap layers as child layer to main window
+    layer_add_child(window_layer, bitmap_layer_get_layer(s_topbar_layer));
     
     // create textlayer with specific bounds
     s_time_layer = text_layer_create(GRect(0, 17, bounds.size.w-50, 40));
@@ -49,7 +65,7 @@ static void main_window_load(Window *w) {
     text_layer_set_text(s_backg_layer, "RAD XYZ R= 'X'\n{HOME}\n7:\n6:\n5:\n4:\n3:\n2:\n1:");
     text_layer_set_text_alignment(s_backg_layer, GTextAlignmentLeft);
     
-    // add as child layer to main window
+    // add text layers as child layer to main window
     layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer));
     layer_add_child(window_layer, text_layer_get_layer(s_backg_layer));
@@ -64,6 +80,10 @@ static void main_window_unload(Window *w) {
     
     // destroy font
     fonts_unload_custom_font(s_time_font);
+    
+    // destroy bitmap stuff
+    gbitmap_destroy(s_topbar_bitmap);
+    bitmap_layer_destroy(s_topbar_layer);
 }
 
 // subscribe to a function to tell the time
