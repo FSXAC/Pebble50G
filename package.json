@@ -1,0 +1,25 @@
+{
+    "author": "Muchen He",
+    "dependencies": {},
+    "keywords": [],
+    "name": "hp50g",
+    "pebble": {
+        "displayName": "HP50G",
+        "enableMultiJS": true,
+        "messageKeys": [],
+        "projectType": "native",
+        "resources": {
+            "media": []
+        },
+        "sdkVersion": "3",
+        "targetPlatforms": [
+            "aplite",
+            "diorite"
+        ],
+        "uuid": "421e6b9d-afab-41a1-b10a-930a977ff933",
+        "watchapp": {
+            "watchface": true
+        }
+    },
+    "version": "1.0.0"
+}
