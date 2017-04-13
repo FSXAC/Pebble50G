@@ -17,8 +17,8 @@ static void main_window_load(Window *w) {
     GRect bounds = layer_get_bounds(window_layer);
     
     // create textlayer with specific bounds
-    s_time_layer = text_layer_create(GRect(0, 17, bounds.size.w, 40));
-    s_backg_layer = text_layer_create(GRect(0, 0, bounds.size.w, bounds.size.h));
+    s_time_layer = text_layer_create(GRect(0, 17, bounds.size.w-2, 40));
+    s_backg_layer = text_layer_create(GRect(2, 0, bounds.size.w, bounds.size.h-4));
     
     // use custom fonts
     // create GFont
