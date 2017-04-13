@@ -7,6 +7,9 @@ static Window *s_main_window;
 // use TextLayer to show text
 static TextLayer *s_time_layer;
 
+// global custom fonts
+static GFont s_time_font;
+
 static void main_window_load(Window *w) {
     // get information about the window
     Layer *window_layer = window_get_root_layer(w);
@@ -15,11 +18,15 @@ static void main_window_load(Window *w) {
     // create textlayer with specific bounds
     s_time_layer = text_layer_create(GRect(0, 10, bounds.size.w, 50));
     
+    // use custom fonts
+    // create GFont
+    s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_50GMINIFONT_08));
+    text_layer_set_font(s_time_layer, s_time_font);
+    
     // imrpove the layout to be more like a watchface
     text_layer_set_background_color(s_time_layer, GColorClear);
     text_layer_set_text_color(s_time_layer, GColorBlack);
     text_layer_set_text(s_time_layer, "--:--");
-    text_layer_set_font(s_time_layer, fonts_get_system_font(FONT_KEY_GOTHIC_09));
     text_layer_set_text_alignment(s_time_layer, GTextAlignmentRight);
     
     // add as child layer to main window
@@ -30,6 +37,9 @@ static void main_window_unload(Window *w) {
     // destroy elements in window
     // destroy textlayer
     text_layer_destroy(s_time_layer);
+    
+    // destroy font
+    fonts_unload_custom_font(s_time_font);
 }
 
 // subscribe to a function to tell the time
