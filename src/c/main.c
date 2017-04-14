@@ -44,7 +44,7 @@ static void main_window_load(Window *w) {
     s_time_layer = text_layer_create(GRect(0, 17, bounds.size.w-50, 40));
     s_date_layer = text_layer_create(GRect(0, 17, bounds.size.w-2, 40));
     s_backg_layer = text_layer_create(GRect(2, 0, bounds.size.w, bounds.size.h-4));
-    s_hrm_layer = text_layer_create(GRect(20, 125, bounds.size.w-22, 26));
+    s_hrm_layer = text_layer_create(GRect(20, 128, bounds.size.w-22, 26));
     
     // use custom fonts
     // create GFont
@@ -87,7 +87,7 @@ static void main_window_load(Window *w) {
     layer_add_child(window_layer, text_layer_get_layer(s_hrm_layer));
     
     // create battery meter layer
-    s_battery_layer = layer_create(GRect(2, 160, bounds.size.w-4, 6));
+    s_battery_layer = layer_create(GRect(2, 150, bounds.size.w-4, 16));
     layer_set_update_proc(s_battery_layer, battery_update_proc);
     
     // add battery layer to window
