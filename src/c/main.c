@@ -20,6 +20,9 @@ static GBitmap *s_topbar_bitmap;
 static int s_battery_level;
 static Layer *s_battery_layer;
 
+// heart rate indicator
+static TextLayer *s_hrm_layer;
+
 static void main_window_load(Window *w) {
     // get information about the window
     Layer *window_layer = window_get_root_layer(w);
@@ -41,6 +44,7 @@ static void main_window_load(Window *w) {
     s_time_layer = text_layer_create(GRect(0, 17, bounds.size.w-50, 40));
     s_date_layer = text_layer_create(GRect(0, 17, bounds.size.w-2, 40));
     s_backg_layer = text_layer_create(GRect(2, 0, bounds.size.w, bounds.size.h-4));
+    s_hrm_layer = text_layer_create(GRect(0, 140, bounds.size.w-2, 26));
     
     // use custom fonts
     // create GFont
@@ -50,8 +54,9 @@ static void main_window_load(Window *w) {
     text_layer_set_font(s_time_layer, s_time_font);
     text_layer_set_font(s_date_layer, s_time_font);
     text_layer_set_font(s_backg_layer, s_time_font);
+    text_layer_set_font(s_hrm_layer, s_time_font);
     
-    // imrpove the layout to be more like a watchface
+    // improve the layout to be more like a watchface
     // time
     text_layer_set_background_color(s_time_layer, GColorClear);
     text_layer_set_text_color(s_time_layer, GColorBlack);
@@ -66,13 +71,20 @@ static void main_window_load(Window *w) {
     // background text
     text_layer_set_background_color(s_backg_layer, GColorClear);
     text_layer_set_text_color(s_backg_layer, GColorBlack);
-    text_layer_set_text(s_backg_layer, "RAD XYZ R= 'X'\n{HOME}\n7:\n6:\n5:\n4:\n3:\n2:\n1:");
+    text_layer_set_text(s_backg_layer, "RAD XYZ BIN R= 'X'\n{HOME}\n7:\n6:\n5:\n4:\n3:\n2:\n1:");
     text_layer_set_text_alignment(s_backg_layer, GTextAlignmentLeft);
+    
+    // heartrate indicator
+    text_layer_set_background_color(s_hrm_layer, GColorClear);
+    text_layer_set_text_color(s_hrm_layer, GColorBlack);
+    text_layer_set_text(s_hrm_layer, "HR=---");
+    text_layer_set_text_alignment(s_hrm_layer, GTextAlignmentRight);
     
     // add text layers as child layer to main window
     layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer));
     layer_add_child(window_layer, text_layer_get_layer(s_backg_layer));
+    layer_add_child(window_layer, text_layer_get_layer(s_hrm_layer));
     
     // create battery meter layer
     s_battery_layer = layer_create(GRect(2, 160, bounds.size.w-4, 6));
@@ -98,6 +110,9 @@ static void main_window_unload(Window *w) {
     
     // destroy battery stuff
     layer_destroy(s_battery_layer);
+    
+    // destroy heart rate stuff
+    text_layer_destroy(s_hrm_layer);
 }
 
 // subscribe to a function to tell the time
@@ -148,6 +163,19 @@ static void battery_update_proc(Layer *layer, GContext *ctx) {
     graphics_fill_rect(ctx, GRect(0, 0, width, bounds.size.h), 0, GCornerNone);
 }
 
+// handler for health / heartrate subscription
+static void prv_on_health_data(HealthEventType type, void *context) {
+    // queue if update was from heart rate monitor
+    if (type == HealthEventHeartRateUpdate) {
+        HealthValue value = health_service_peek_current_value(HealthMetricHeartRateBPM);
+        
+        // display the value
+        static char s_hrm_buffer[8];
+        snprintf(s_hrm_buffer, sizeof(s_hrm_buffer), "HR=%d", (uint8_t)value);
+        text_layer_set_text(s_hrm_layer, s_hrm_buffer);
+    }
+}
+
 static void init() {
     // Create main Window element and assign to pointer
     s_main_window = window_create();
@@ -167,6 +195,9 @@ static void init() {
     // register with battery level updates
     battery_state_service_subscribe(battery_callback);
     
+    // register subscription with heart rate updates
+    health_service_events_subscribe(prv_on_health_data, NULL);
+    
     // make sure the time is dispayed from the start
     update_time();
     
@@ -177,6 +208,9 @@ static void init() {
 static void deinit() {
     // destry window
     window_destroy(s_main_window);
+    
+    // Reset the heart rate sampling period to automatic
+    //health_service_set_heart_rate_sample_period(0);
 }
 
 int main(void) {

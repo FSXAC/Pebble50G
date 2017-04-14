@@ -7,5 +7,6 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed);
 static void battery_callback(BatteryChargeState state);
 static void update_time();
 static void battery_update_proc(Layer *layer, GContext *ctx);
+static void prv_on_health_data(HealthEventType type, void *context);
 static void init();
 static void deinit();

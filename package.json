@@ -4,6 +4,10 @@
     "keywords": [],
     "name": "hp50g",
     "pebble": {
+        "capabilities": [
+            "configurable",
+            "health"
+        ],
         "displayName": "HP50G",
         "enableMultiJS": true,
         "messageKeys": [],
