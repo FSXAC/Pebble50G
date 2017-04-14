@@ -44,7 +44,7 @@ static void main_window_load(Window *w) {
     s_time_layer = text_layer_create(GRect(0, 17, bounds.size.w-50, 40));
     s_date_layer = text_layer_create(GRect(0, 17, bounds.size.w-2, 40));
     s_backg_layer = text_layer_create(GRect(2, 0, bounds.size.w, bounds.size.h-4));
-    s_hrm_layer = text_layer_create(GRect(0, 140, bounds.size.w-2, 26));
+    s_hrm_layer = text_layer_create(GRect(20, 125, bounds.size.w-22, 26));
     
     // use custom fonts
     // create GFont
@@ -78,7 +78,7 @@ static void main_window_load(Window *w) {
     text_layer_set_background_color(s_hrm_layer, GColorClear);
     text_layer_set_text_color(s_hrm_layer, GColorBlack);
     text_layer_set_text(s_hrm_layer, "HR=---");
-    text_layer_set_text_alignment(s_hrm_layer, GTextAlignmentRight);
+    text_layer_set_text_alignment(s_hrm_layer, GTextAlignmentLeft);
     
     // add text layers as child layer to main window
     layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
@@ -203,6 +203,9 @@ static void init() {
     
     // make sure the battery level is displayed from the start
     battery_callback(battery_state_service_peek());
+    
+    // make sure battery level is displayed from the start
+    prv_on_health_data(HealthEventHeartRateUpdate, 0);
 }
 
 static void deinit() {
