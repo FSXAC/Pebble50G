@@ -16,6 +16,10 @@ static GFont s_time_font;
 static BitmapLayer *s_topbar_layer;
 static GBitmap *s_topbar_bitmap;
 
+// battery indicator
+static int s_battery_level;
+static Layer *s_battery_layer;
+
 static void main_window_load(Window *w) {
     // get information about the window
     Layer *window_layer = window_get_root_layer(w);
@@ -69,6 +73,13 @@ static void main_window_load(Window *w) {
     layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
     layer_add_child(window_layer, text_layer_get_layer(s_date_layer));
     layer_add_child(window_layer, text_layer_get_layer(s_backg_layer));
+    
+    // create battery meter layer
+    s_battery_layer = layer_create(GRect(2, 160, bounds.size.w-4, 6));
+    layer_set_update_proc(s_battery_layer, battery_update_proc);
+    
+    // add battery layer to window
+    layer_add_child(window_layer, s_battery_layer);
 }
 
 static void main_window_unload(Window *w) {
@@ -84,6 +95,9 @@ static void main_window_unload(Window *w) {
     // destroy bitmap stuff
     gbitmap_destroy(s_topbar_bitmap);
     bitmap_layer_destroy(s_topbar_layer);
+    
+    // destroy battery stuff
+    layer_destroy(s_battery_layer);
 }
 
 // subscribe to a function to tell the time
@@ -112,6 +126,28 @@ static void update_time() {
     text_layer_set_text(s_date_layer, date_buffer);
 }
 
+// handler for battery subscription
+static void battery_callback(BatteryChargeState state) {
+    // record new battery level
+    s_battery_level = state.charge_percent;
+    
+    // mark battery layer to be re-rendered
+    layer_mark_dirty(s_battery_layer);
+}
+
+// layer update for battery
+static void battery_update_proc(Layer *layer, GContext *ctx) {
+    // draw the battery indication
+    GRect bounds = layer_get_bounds(layer);
+    
+    // find the width of battery bar
+    int width = s_battery_level * 140 / 100;
+    
+    // draw the graphics
+    graphics_context_set_fill_color(ctx, GColorBlack);
+    graphics_fill_rect(ctx, GRect(0, 0, width, bounds.size.h), 0, GCornerNone);
+}
+
 static void init() {
     // Create main Window element and assign to pointer
     s_main_window = window_create();
@@ -128,8 +164,14 @@ static void init() {
     // Register with TickTimerService
     tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
     
+    // register with battery level updates
+    battery_state_service_subscribe(battery_callback);
+    
     // make sure the time is dispayed from the start
     update_time();
+    
+    // make sure the battery level is displayed from the start
+    battery_callback(battery_state_service_peek());
 }
 
 static void deinit() {
