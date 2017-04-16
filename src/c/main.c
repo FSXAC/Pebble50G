@@ -10,7 +10,7 @@ static TextLayer *s_date_layer;
 static TextLayer *s_backg_layer;
 
 // global custom fonts
-static GFont s_time_font;
+static GFont s_minifont;
 
 // global bitmap image
 static BitmapLayer *s_topbar_layer;
@@ -28,6 +28,10 @@ static void main_window_load(Window *w) {
     Layer *window_layer = window_get_root_layer(w);
     GRect bounds = layer_get_bounds(window_layer);
     
+    // create custom GFont
+    s_minifont = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_MINIFONT_16));
+    
+    /*===[BITMAPS]===*/
     // create bitmaps
     s_topbar_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_TOPBAR);
     
@@ -40,52 +44,50 @@ static void main_window_load(Window *w) {
     // add bitmap layers as child layer to main window
     layer_add_child(window_layer, bitmap_layer_get_layer(s_topbar_layer));
     
+    /*===[MAIN TIME]====*/
     // create textlayer with specific bounds
     s_time_layer = text_layer_create(GRect(0, 17, bounds.size.w-50, 40));
-    s_date_layer = text_layer_create(GRect(0, 17, bounds.size.w-2, 40));
-    s_backg_layer = text_layer_create(GRect(2, 0, bounds.size.w, bounds.size.h-4));
-    s_hrm_layer = text_layer_create(GRect(20, 128, bounds.size.w-22, 26));
-    
-    // use custom fonts
-    // create GFont
-    s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_MINIFONT_16));
     
     // assign fonts
-    text_layer_set_font(s_time_layer, s_time_font);
-    text_layer_set_font(s_date_layer, s_time_font);
-    text_layer_set_font(s_backg_layer, s_time_font);
-    text_layer_set_font(s_hrm_layer, s_time_font);
+    text_layer_set_font(s_time_layer, s_minifont);
     
     // improve the layout to be more like a watchface
-    // time
     text_layer_set_background_color(s_time_layer, GColorClear);
     text_layer_set_text_color(s_time_layer, GColorBlack);
     text_layer_set_text(s_time_layer, "--:--");
     text_layer_set_text_alignment(s_time_layer, GTextAlignmentRight);
-    // date
+    
+    // add text layers as child layer to main window
+    layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
+    
+    /*===[DATE LAYER]===*/
+    s_date_layer = text_layer_create(GRect(0, 17, bounds.size.w-2, 40));
+    text_layer_set_font(s_date_layer, s_minifont);\
     text_layer_set_background_color(s_date_layer, GColorClear);
     text_layer_set_text_color(s_date_layer, GColorBlack);
     text_layer_set_text(s_date_layer, "---:--");
     text_layer_set_text_alignment(s_date_layer, GTextAlignmentRight);
+    layer_add_child(window_layer, text_layer_get_layer(s_date_layer));
     
-    // background text
+    /*===[BACKGROUND TEXT]===*/
+    s_backg_layer = text_layer_create(GRect(2, 0, bounds.size.w, bounds.size.h-4));
+    text_layer_set_font(s_backg_layer, s_minifont);
     text_layer_set_background_color(s_backg_layer, GColorClear);
     text_layer_set_text_color(s_backg_layer, GColorBlack);
     text_layer_set_text(s_backg_layer, "RAD XYZ BIN R= 'X'\n{HOME}\n7:\n6:\n5:\n4:\n3:\n2:\n1:");
     text_layer_set_text_alignment(s_backg_layer, GTextAlignmentLeft);
+    layer_add_child(window_layer, text_layer_get_layer(s_backg_layer));
     
-    // heartrate indicator
+    /*===[HEARTRATE MONITOR]===*/
+    s_hrm_layer = text_layer_create(GRect(20, 128, bounds.size.w-22, 26));
+    text_layer_set_font(s_hrm_layer, s_minifont);
     text_layer_set_background_color(s_hrm_layer, GColorClear);
     text_layer_set_text_color(s_hrm_layer, GColorBlack);
     text_layer_set_text(s_hrm_layer, "HR=---");
     text_layer_set_text_alignment(s_hrm_layer, GTextAlignmentLeft);
-    
-    // add text layers as child layer to main window
-    layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
-    layer_add_child(window_layer, text_layer_get_layer(s_date_layer));
-    layer_add_child(window_layer, text_layer_get_layer(s_backg_layer));
     layer_add_child(window_layer, text_layer_get_layer(s_hrm_layer));
     
+    /* ===[BATTERY LEVEL]===*/
     // create battery meter layer
     s_battery_layer = layer_create(GRect(2, 150, bounds.size.w-4, 16));
     layer_set_update_proc(s_battery_layer, battery_update_proc);
@@ -102,7 +104,7 @@ static void main_window_unload(Window *w) {
     text_layer_destroy(s_backg_layer);
     
     // destroy font
-    fonts_unload_custom_font(s_time_font);
+    fonts_unload_custom_font(s_minifont);
     
     // destroy bitmap stuff
     gbitmap_destroy(s_topbar_bitmap);
